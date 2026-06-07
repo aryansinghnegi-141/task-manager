@@ -2,8 +2,6 @@
 # Node.js / npm
 # ============================
 node_modules/          # all npm packages — never commit these
-client/node_modules/  # frontend dependencies
-server/node_modules/  # backend dependencies
 .npm/                  # npm cache
 
 # ============================
