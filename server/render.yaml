@@ -23,7 +23,7 @@ services:
 
       - key: CLIENT_URL
         # Replace with your actual Vercel frontend URL after deploying
-        value: https://your-taskr.vercel.app
+        value: https://task-manager-141.vercel.app
 
     # Disk for persisting the tasks.json file between deploys
     # Without this, the file is lost every time Render rebuilds the service
