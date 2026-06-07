@@ -1,0 +1,84 @@
+/* Tailwind CSS directives — Vite/PostCSS replaces these with the generated utility classes */
+@tailwind base;        /* Tailwind's normalise/preflight reset styles */
+@tailwind components;  /* Tailwind component class layer (empty by default) */
+@tailwind utilities;   /* All the utility classes (flex, text-xl, etc.) */
+
+/* --- Global Base Styles --- */
+
+/* Apply the body font to every element by default */
+body {
+  font-family: 'DM Sans', system-ui, sans-serif; /* matches tailwind.config.js font-body */
+  /* Warm cream background that makes the card-based UI feel cosy, not clinical */
+  background-color: #faf5eb;
+  /* Dark charcoal text — softer than pure black, easier on the eyes */
+  color: #1a202c;
+  /* Prevent content from jutting against viewport edges on mobile */
+  min-height: 100vh;
+}
+
+/* --- Custom Scrollbar (WebKit) --- */
+/* Applied to the task list scroll container */
+::-webkit-scrollbar {
+  width: 6px; /* thin, unobtrusive scrollbar */
+}
+::-webkit-scrollbar-track {
+  background: transparent; /* invisible track */
+}
+::-webkit-scrollbar-thumb {
+  background: #c8d5c9;     /* muted sage thumb */
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #87a989;     /* darker on hover for affordance */
+}
+
+/* --- Focus Styles --- */
+/* Replace the default browser outline with our brand colour for keyboard accessibility */
+*:focus-visible {
+  outline: 2px solid #6b9070; /* sage-500 */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- Drag-and-Drop Ghost Card --- */
+/* @hello-pangea/dnd clones the dragged element; this styles the clone */
+.dragging-card {
+  opacity: 0.9;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* elevated shadow while dragging */
+  rotate: 1.5deg;                                /* slight tilt for a playful feel */
+  cursor: grabbing;
+}
+
+/* The drop placeholder (empty space where the card will land) */
+.drop-placeholder {
+  background: #e8f0e9;  /* light sage */
+  border: 2px dashed #87a989; /* dashed sage border */
+  border-radius: 12px;
+}
+
+/* --- Transitions --- */
+/* Smooth transitions for interactive elements */
+button, a {
+  transition: all 0.15s ease; /* snappy but not jarring */
+}
+
+/* --- Completed Task Strike-through Animation --- */
+/* The strike-through line grows from left to right when a task is completed */
+.strike-through {
+  position: relative;
+}
+.strike-through::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1.5px;
+  background: #6b9070; /* sage line */
+  transform-origin: left center;
+  animation: strike 0.3s ease forwards; /* plays once when class is applied */
+}
+@keyframes strike {
+  from { transform: scaleX(0); } /* starts at zero width */
+  to   { transform: scaleX(1); } /* expands to full width */
+}

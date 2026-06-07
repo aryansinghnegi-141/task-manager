@@ -1,0 +1,33 @@
+# render.yaml — Infrastructure-as-code for deploying the backend to Render.com
+# Commit this file to your repo; Render reads it automatically on import.
+# Docs: https://render.com/docs/render-yaml-spec
+
+services:
+  # Define a Web Service (always-on HTTP server)
+  - type: web
+    name: taskr-api                    # Display name in the Render dashboard
+    runtime: node                      # Use the Node.js runtime
+    region: oregon                     # us-west-2 region (change to suit your users)
+    rootDir: server                    # Render runs commands from this directory
+    buildCommand: npm install          # Install production dependencies
+    startCommand: npm start            # Run node src/index.js
+    plan: free                         # Free tier — spins down after 15 min inactivity
+
+    # Environment variables injected at runtime
+    envVars:
+      - key: NODE_ENV
+        value: production              # Disables verbose SQLite logging
+
+      - key: PORT
+        value: 3001                    # Render also injects its own PORT; this is a fallback
+
+      - key: CLIENT_URL
+        # Replace with your actual Vercel frontend URL after deploying
+        value: https://your-taskr.vercel.app
+
+    # Disk for persisting the tasks.json file between deploys
+    # Without this, the file is lost every time Render rebuilds the service
+    disk:
+      name: taskr-data                 # Render dashboard label
+      mountPath: /var/data             # The path the service can write to
+      sizeGB: 1                        # Minimum paid disk size (free tier: no disk)

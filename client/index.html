@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Responsive viewport meta tag — essential for Tailwind's responsive breakpoints -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon — a simple clipboard emoji rendered as SVG -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>" />
+
+    <!-- Page title shown in the browser tab -->
+    <title>Taskr — Personal Task Manager</title>
+
+    <!-- Google Fonts preconnect — speeds up font loading by establishing early connections -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Load the three custom fonts defined in tailwind.config.js -->
+    <!-- Playfair Display: elegant display font for headings -->
+    <!-- DM Sans: modern humanist sans-serif for body text -->
+    <!-- JetBrains Mono: developer mono font for metadata -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- React mounts the entire application into this div -->
+    <!-- Vite injects the compiled JS bundle via the script tag below -->
+    <div id="root"></div>
+
+    <!-- Vite entry point — this module is processed by @vitejs/plugin-react -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

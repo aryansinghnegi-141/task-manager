@@ -1,0 +1,49 @@
+# ============================
+# Node.js / npm
+# ============================
+node_modules/          # all npm packages — never commit these
+.npm/                  # npm cache
+
+# ============================
+# Build outputs
+# ============================
+client/dist/           # Vite production build output
+client/.vite/          # Vite dev server cache
+
+# ============================
+# Environment variables
+# ============================
+# These files may contain secrets — NEVER commit them
+.env
+.env.local
+.env.production
+.env.development.local
+
+# ============================
+# Database
+# ============================
+server/src/storage/tasks.db  # SQLite database file — user data, not code
+server/src/storage/tasks.db-shm  # SQLite shared memory file
+server/src/storage/tasks.db-wal  # SQLite write-ahead log
+
+# ============================
+# OS files
+# ============================
+.DS_Store              # macOS folder metadata
+Thumbs.db              # Windows thumbnail cache
+desktop.ini
+
+# ============================
+# IDE / Editor
+# ============================
+.vscode/               # VS Code workspace settings (team may differ)
+.idea/                 # JetBrains IDE project files
+*.sublime-project
+*.sublime-workspace
+
+# ============================
+# Logs
+# ============================
+*.log                  # any log file
+npm-debug.log*
+yarn-error.log*
