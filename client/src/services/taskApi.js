@@ -5,7 +5,10 @@ import axios from "axios";
 // In development, Vite's proxy forwards /api/* to http://localhost:3001
 // In production (Vercel), set VITE_API_URL to the Render backend URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api", // reads from .env.local or falls back to proxy
+  baseURL:
+    import.meta.env.VITE_API_URL || // override via env for deployments
+    "https://task-manager-1-5tcs.onrender.com", // default production backend
+
   headers: {
     "Content-Type": "application/json", // tell the server we're sending JSON
   },
