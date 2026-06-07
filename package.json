@@ -1,13 +1,9 @@
 {
   "name": "task-manager-monorepo",
   "version": "1.0.0",
-  "description": "Monorepo root — see client/ and server/ for the actual apps",
   "private": true,
   "scripts": {
     "dev:client": "cd client && npm run dev",
-    "dev:server": "cd server && npm run dev",
-    "build": "cd client && npm install && npm run build",
-    "test:client": "cd client && npm test",
-    "test:server": "cd server && npm test"
+    "dev:server": "cd server && npm run dev"
   }
 }
