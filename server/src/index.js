@@ -1,72 +1,80 @@
 // Load environment variables from .env file before anything else
 require("dotenv").config();
 
-// Import the Express framework for building the HTTP server
 const express = require("express");
-
-// Import CORS middleware to allow cross-origin requests from the frontend
 const cors = require("cors");
-
-// Import our task routes module that defines all /api/tasks endpoints
 const taskRoutes = require("./routes/taskRoutes");
-
-// Import the error-handling middleware for centralised error responses
 const errorHandler = require("./middleware/errorHandler");
-
-// Import the database initialisation function to set up SQLite on startup
 const { initDatabase } = require("./storage/database");
 
-// Create the Express application instance
 const app = express();
-
-// Read the port from the environment variable, defaulting to 3001 if not set
 const PORT = process.env.PORT || 3001;
 
-// --- Middleware Setup ---
+// --- CORS ---
+// Whitelist of origins allowed to call this API.
+// Always includes localhost for local development.
+// In production, CLIENT_URL must be set to the Vercel frontend URL.
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",                              // Vite dev server
+  "http://localhost:3000",                              // fallback local port
+  "https://task-manager-141.vercel.app",               // production Vercel frontend
+  process.env.CLIENT_URL,                              // env override (optional)
+].filter(Boolean); // remove undefined/null entries
 
-// Enable CORS so the React dev server (localhost:5173) can call this API
-// In production, restrict the origin to your deployed frontend URL
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173", // allowed origin
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],        // allowed HTTP methods
-    credentials: true,                                          // allow cookies if needed later
+    // Allow the request if its Origin header is in the whitelist
+    origin: (origin, callback) => {
+      // Allow requests with no Origin header (e.g. curl, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);  // origin is allowed
+      } else {
+        // Log the blocked origin so it's visible in Render logs
+        console.warn(`CORS blocked origin: ${origin}`);
+        callback(new Error(`CORS policy: origin ${origin} is not allowed`));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 
-// Parse incoming JSON request bodies so req.body is available
-app.use(express.json());
+// Handle preflight OPTIONS requests for all routes
+app.options("*", cors());
 
-// Parse URL-encoded bodies (form submissions), extended=false uses the native querystring library
+// Parse incoming JSON bodies
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // --- Routes ---
-
-// Mount all task-related routes under the /api/tasks prefix
 app.use("/api/tasks", taskRoutes);
 
-// Simple health-check route so deployment platforms can verify the server is alive
+// Health check — lets you verify the backend is alive from the browser
 app.get("/health", (req, res) => {
-  res.json({ success: true, message: "Task Manager API is running" });
+  res.json({
+    success: true,
+    message: "Task Manager API is running",
+    allowedOrigins: ALLOWED_ORIGINS, // helpful for debugging CORS issues
+  });
 });
 
-// Catch-all route for any unmatched paths — returns a 404 JSON response
+// 404 handler for unmatched routes
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
-// Mount the global error handler LAST — Express identifies it by its 4-parameter signature
+// Global error handler — must be last, identified by 4 params
 app.use(errorHandler);
 
 // --- Bootstrap ---
-
-// Initialise the database (creates tables if they don't exist) then start listening
 initDatabase();
 
-// Start the HTTP server and log the port for developer convenience
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`✅ Allowed origins: ${ALLOWED_ORIGINS.join(", ")}`);
 });
 
-// Export the app for use in automated tests (supertest imports this)
 module.exports = app;

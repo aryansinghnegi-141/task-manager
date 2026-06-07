@@ -1,100 +1,74 @@
-// Import Axios — a promise-based HTTP client with a cleaner API than fetch
+// Import Axios — a promise-based HTTP client
 import axios from "axios";
 
-// Create a pre-configured Axios instance so all requests share the same baseURL
-// In development, Vite's proxy forwards /api/* to http://localhost:3001
-// In production (Vercel), set VITE_API_URL to the Render backend URL
-const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL || // override via env for deployments
-    "https://task-manager-1-5tcs.onrender.com", // default production backend
+// The backend URL:
+//   - In production (Vercel): VITE_API_URL is set to the Render backend URL
+//   - In development: falls back to /api which Vite proxies to localhost:3001
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||   // set this on Vercel: https://task-manager-1-5tcs.onrender.com/api
+  "/api";                            // dev fallback — Vite proxy handles this
 
+const api = axios.create({
+  baseURL: BASE_URL,
   headers: {
-    "Content-Type": "application/json", // tell the server we're sending JSON
+    "Content-Type": "application/json",
   },
-  timeout: 10000, // 10-second timeout — prevents hanging requests on slow networks
+  timeout: 15000, // 15s — Render free tier can be slow to wake up after inactivity
 });
 
-// --- Request Interceptor ---
-// Runs before every outgoing request; useful for adding auth headers later
+// --- Request interceptor ---
 api.interceptors.request.use(
-  (config) => config,       // pass the config through unchanged for now
-  (error) => Promise.reject(error) // forward request-setup errors
+  (config) => config,
+  (error) => Promise.reject(error)
 );
 
-// --- Response Interceptor ---
-// Normalises API errors so the rest of the app never has to check status codes
+// --- Response interceptor ---
+// Normalise API errors into plain Error objects so callers just catch(err) and read err.message
 api.interceptors.response.use(
-  (response) => response, // successful responses pass through unchanged
+  (response) => response,
   (error) => {
-    // Extract a human-readable message from the server's error envelope
-    // Falls back to the network error message if the server didn't respond at all
     const message =
-      error.response?.data?.message || // server returned { success: false, message: "..." }
-      error.message ||                  // network error (e.g. ECONNREFUSED)
+      error.response?.data?.message ||
+      error.message ||
       "An unknown error occurred";
-
-    // Re-throw as a plain Error so callers can catch(err) and read err.message
     return Promise.reject(new Error(message));
   }
 );
 
-// --- Task API Functions ---
-// Each function wraps an Axios call and returns the unwrapped data field
+// --- Task API functions ---
 
-/**
- * fetchTasks — GET /api/tasks
- * Retrieves all tasks ordered by their drag-and-drop position.
- */
+/** GET /api/tasks — fetch all tasks sorted by order */
 export const fetchTasks = async () => {
-  const { data } = await api.get("/tasks"); // data = { success, data: Task[] }
-  return data.data;                          // return just the array
+  const { data } = await api.get("/tasks");
+  return data.data;
 };
 
-/**
- * createTask — POST /api/tasks
- * @param {{ title: string, description?: string, dueDate?: string|null }} payload
- */
+/** POST /api/tasks — create a new task */
 export const createTask = async (payload) => {
   const { data } = await api.post("/tasks", payload);
-  return data.data; // return the newly created task object
+  return data.data;
 };
 
-/**
- * updateTask — PUT /api/tasks/:id
- * @param {string} id - Task UUID
- * @param {{ title?: string, description?: string, dueDate?: string|null }} payload
- */
+/** PUT /api/tasks/:id — update title / description / dueDate */
 export const updateTask = async (id, payload) => {
   const { data } = await api.put(`/tasks/${id}`, payload);
-  return data.data; // return the updated task object
+  return data.data;
 };
 
-/**
- * toggleTask — PATCH /api/tasks/:id/toggle
- * Flips the completed status without requiring the caller to know the current state.
- * @param {string} id - Task UUID
- */
+/** PATCH /api/tasks/:id/toggle — flip completed status */
 export const toggleTask = async (id) => {
   const { data } = await api.patch(`/tasks/${id}/toggle`);
-  return data.data; // return the task with its new completed value
+  return data.data;
 };
 
-/**
- * deleteTask — DELETE /api/tasks/:id
- * @param {string} id - Task UUID
- */
+/** DELETE /api/tasks/:id — permanently delete a task */
 export const deleteTask = async (id) => {
   const { data } = await api.delete(`/tasks/${id}`);
-  return data; // return the { success, message } confirmation
+  return data;
 };
 
-/**
- * reorderTasks — PATCH /api/tasks/reorder
- * Saves the new drag-and-drop order to the backend.
- * @param {Array<{ id: string, order: number }>} orderedTasks
- */
+/** PATCH /api/tasks/reorder — save drag-and-drop order */
 export const reorderTasks = async (orderedTasks) => {
   const { data } = await api.patch("/tasks/reorder", { tasks: orderedTasks });
-  return data.data; // return the freshly ordered task list
+  return data.data;
 };
